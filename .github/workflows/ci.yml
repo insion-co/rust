@@ -1,48 +1,64 @@
-name: ci
+name: CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
-
-env:
-  RUSTFLAGS: "-A warnings"
+  cancel-in-progress: true
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-
-      - name: Check
-        run: cargo check
-
-  compile:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-
-      - name: Compile
-        run: cargo build
-
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v6
 
       - name: Set up Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --all --check
+
+      - name: Check
+        run: cargo check --all-targets --all-features
 
       - name: Test
-        run: cargo test
+        run: cargo test --all-targets --all-features
 
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Verify package metadata
+        shell: bash
+        run: |
+          metadata="$(cargo metadata --no-deps --format-version 1)"
+          test "$(jq -r '.packages[0].name' <<<"$metadata")" = "insion"
+          test "$(jq -r '.packages[0].version' <<<"$metadata")" = "1.0.1"
+          test "$(jq -r '.packages[0].license' <<<"$metadata")" = "MIT"
+          test "$(jq -r '.packages[0].repository' <<<"$metadata")" = "https://github.com/insion-co/rust"
+          test "$(jq -r '.packages[0].documentation' <<<"$metadata")" = "https://docs.rs/insion"
+
+      - name: Build package
+        run: |
+          cargo package
+          cargo package --list | grep -Fx "LICENSE.md"

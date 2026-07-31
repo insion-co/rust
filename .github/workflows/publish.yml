@@ -1,0 +1,70 @@
+name: Publish to crates.io
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      BOOTSTRAP_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+
+      - name: Verify release version
+        shell: bash
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Release tag must use vMAJOR.MINOR.PATCH." >&2
+            exit 1
+          fi
+          crate_version="$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "insion") | .version')"
+          test "$GITHUB_REF_NAME" = "v$crate_version"
+
+      - name: Check formatting
+        run: cargo fmt --all --check
+
+      - name: Test
+        run: cargo test --all-targets --all-features
+
+      - name: Build and verify package
+        run: |
+          cargo package
+          cargo package --list | grep -Fx "LICENSE.md"
+
+      - name: Authenticate with crates.io
+        if: env.BOOTSTRAP_TOKEN == ''
+        id: auth
+        uses: rust-lang/crates-io-auth-action@v1
+
+      - name: Publish with bootstrap token
+        if: env.BOOTSTRAP_TOKEN != ''
+        run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+
+      - name: Publish with trusted publishing
+        if: env.BOOTSTRAP_TOKEN == ''
+        run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}

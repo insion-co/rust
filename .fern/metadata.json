@@ -1,12 +1,18 @@
 {
-  "cliVersion": "5.75.1",
+  "cliVersion": "5.85.0",
   "generatorName": "fernapi/fern-rust-sdk",
   "generatorVersion": "0.42.2",
   "generatorConfig": {
     "clientClassName": "InsionClient",
-    "crateName": "insion"
+    "crateName": "insion",
+    "crateVersion": "1.0.1",
+    "packageDescription": "Official Rust SDK for the Insion Content Moderation API",
+    "packageLicense": "MIT",
+    "packageRepository": "https://github.com/insion-co/rust",
+    "packageDocumentation": "https://docs.rs/insion"
   },
-  "originGitCommit": "d549a1ae250d149189be58081302356d0f9819c3",
+  "originGitCommit": "35704c1bf6b3c6e1fa3b33971a4753130557ef8e",
   "originGitCommitIsDirty": true,
-  "invokedBy": "manual"
+  "invokedBy": "manual",
+  "requestedVersion": "1.0.1"
 }

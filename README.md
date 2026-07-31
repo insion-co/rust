@@ -26,7 +26,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-insion = "0.1.0"
+insion = "1.0.1"
 ```
 
 Or install via cargo:
