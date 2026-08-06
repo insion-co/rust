@@ -1,6 +1,6 @@
 [package]
 name = "insion"
-version = "1.0.1"
+version = "0.1.0"
 edition = "2021"
 description = "Official Rust SDK for the Insion Content Moderation API"
 license = "MIT"

@@ -10,8 +10,9 @@ pub struct Record {
     #[serde(rename = "clientUrl")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub client_url: Option<String>,
-    #[serde(default)]
-    pub name: String,
+    /// Name or title of the record. Null when submitted using passthrough moderation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
     #[serde(default)]
     pub entity: String,
     #[serde(default)]
@@ -143,7 +144,6 @@ impl RecordBuilder {
     /// This method will fail if any of the following fields are not set:
     /// - [`id`](RecordBuilder::id)
     /// - [`client_id`](RecordBuilder::client_id)
-    /// - [`name`](RecordBuilder::name)
     /// - [`entity`](RecordBuilder::entity)
     /// - [`protected`](RecordBuilder::protected)
     /// - [`created_at`](RecordBuilder::created_at)
@@ -156,7 +156,7 @@ impl RecordBuilder {
                 .client_id
                 .ok_or_else(|| BuildError::missing_field("client_id"))?,
             client_url: self.client_url,
-            name: self.name.ok_or_else(|| BuildError::missing_field("name"))?,
+            name: self.name,
             entity: self
                 .entity
                 .ok_or_else(|| BuildError::missing_field("entity"))?,
