@@ -8,9 +8,17 @@
     "packageDescription": "Official Rust SDK for the Insion Content Moderation API",
     "packageLicense": "MIT",
     "packageRepository": "https://github.com/insion-co/rust",
-    "packageDocumentation": "https://docs.rs/insion"
+    "packageDocumentation": "https://docs.rs/insion",
+    "extraDependencies": {
+      "reqwest": {
+        "version": "0.12",
+        "features": [
+          "rustls-tls"
+        ]
+      }
+    }
   },
-  "originGitCommit": "b5b88b97d39d97d3d3df51cff3ea6b34d190bd74",
+  "originGitCommit": "ad06ca44295d44f207ba4a0d01ae102beac40a8c",
   "originGitCommitIsDirty": true,
   "invokedBy": "manual"
 }
