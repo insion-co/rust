@@ -5,6 +5,7 @@
   "generatorConfig": {
     "clientClassName": "InsionClient",
     "crateName": "insion",
+    "crateVersion": "1.0.3",
     "packageDescription": "Official Rust SDK for the Insion Content Moderation API",
     "packageLicense": "MIT",
     "packageRepository": "https://github.com/insion-co/rust",

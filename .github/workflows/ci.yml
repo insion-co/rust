@@ -52,8 +52,11 @@ jobs:
         shell: bash
         run: |
           metadata="$(cargo metadata --no-deps --format-version 1)"
+          crate_version="$(jq -r '.packages[0].version' <<<"$metadata")"
+          changelog_version="$(sed -nE 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/p' changelog.md | head -n 1)"
           test "$(jq -r '.packages[0].name' <<<"$metadata")" = "insion"
-          test "$(jq -r '.packages[0].version' <<<"$metadata")" = "1.0.1"
+          test -n "$changelog_version"
+          test "$crate_version" = "$changelog_version"
           test "$(jq -r '.packages[0].license' <<<"$metadata")" = "MIT"
           test "$(jq -r '.packages[0].repository' <<<"$metadata")" = "https://github.com/insion-co/rust"
           test "$(jq -r '.packages[0].documentation' <<<"$metadata")" = "https://docs.rs/insion"
